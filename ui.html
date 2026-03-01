@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <title>Variant Layer Selector</title>
   <style>
     body {
@@ -19,7 +22,7 @@
     }
 
     #container {
-      padding-bottom: 60px;
+      padding-bottom: 0px;
       /* Space for the footer */
       flex-grow: 1;
       overflow-y: hidden;
@@ -53,33 +56,31 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 16px;
-      background: #f5f5f5;
+      padding: 10px 16px;
+      background: #ffffff;
       cursor: pointer;
       user-select: none;
       transition: background-color 0.15s ease;
     }
 
     .property-header:hover {
-      background: #e8e8e8;
+      background: #f4f5f7;
     }
 
     .property-title {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
-      color: #333;
+      color: #2c2c2c;
     }
 
     .icon {
-      font-size: 16px;
-      font-weight: bold;
-      color: #888;
+      width: 16px;
+      height: 16px;
+      background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%23888888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
       transition: transform 0.15s ease;
       transform: rotate(0deg);
-    }
-
-    .icon::before {
-      content: '›';
     }
 
     .property-content {
@@ -95,16 +96,18 @@
       display: none;
     }
 
-    .property-group:not(.collapsed) .icon {
-      transform: rotate(90deg);
+    .property-group.collapsed .icon {
+      transform: rotate(180deg);
     }
 
     /* --- 'option-group' --- */
     .option-group {
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
+      background: #ffffff;
+      border: 1px solid #e2e2e5;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
       overflow: visible;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       position: relative;
       margin-left: 32px;
     }
@@ -118,10 +121,9 @@
       content: '';
       position: absolute;
       background: #e0e0e0;
-      width: 1px;
-      left: -12px;
+      width: 1.5px;
+      left: -15px;
       /* Positions line in the margin */
-      transform: translateX(-0.5px);
       top: -17px;
       height: calc(100% + 17px);
     }
@@ -136,9 +138,10 @@
     /* .option-title (Box Header) */
     .option-title {
       font-weight: 600;
-      padding: 8px 12px;
-      background: #f5f5ff;
-      border-bottom: 1px solid #e0e0e0;
+      padding: 10px 12px;
+      background: #f8f9fc;
+      border-bottom: 1px solid #e2e2e5;
+      border-radius: 6px 6px 0 0;
       /* Separator */
       display: flex;
       align-items: center;
@@ -149,7 +152,7 @@
     }
 
     .option-title:hover {
-      background: #e8e8fb;
+      background: #edf1f7;
     }
 
     input[type="checkbox"] {
@@ -167,12 +170,12 @@
     .option-title::before {
       content: '';
       position: absolute;
-      left: -12px;
-      top: 15px;
+      left: -15px;
+      top: 16px;
       width: 12px;
-      height: 1px;
+      /* shortened to leave a 2px gap */
+      height: 1.5px;
       background: #e0e0e0;
-      transform: translateY(-0.5px);
     }
 
 
@@ -206,15 +209,25 @@
       content: '';
       position: absolute;
       background: #e0e0e0;
-      width: 1px;
-      left: -12px;
+      width: 1.5px;
+      left: -15px;
       top: 0;
       height: 100%;
-      transform: translateX(-0.5px);
     }
 
+    /* For the last child, we drop the vertical line background
+       and use borders to create the rounded "elbow" connection. */
     .layer-item:last-child::before {
-      height: 13px;
+      background: none;
+      border-left: 1.5px solid #e0e0e0;
+      border-bottom: 1.5px solid #e0e0e0;
+      border-bottom-left-radius: 6px;
+      width: 12px;
+      /* shortened to leave a gap before the checkbox */
+      /* extends right to meet the horizontal line space */
+      height: 12px;
+      /* stops halfway down the row */
+      left: -15px;
     }
 
     .layer-item-header {
@@ -236,12 +249,18 @@
     .layer-item-header::before {
       content: '';
       position: absolute;
-      left: -8px;
-      top: 13px;
-      width: 8px;
-      height: 1px;
+      left: -11px;
+      /* Connects from the new vertical line -15px up to the item */
+      top: 12px;
+      width: 9px;
+      /* shortened to leave a gap before the checkbox */
+      height: 1.5px;
       background: #e0e0e0;
-      transform: translateY(-0.5px);
+    }
+
+    /* Ensure the last child's header line doesn't overlap the elbow's own bottom border */
+    .layer-item:last-child>.layer-item-header::before {
+      display: none;
     }
 
     .layer-item input {
@@ -273,13 +292,25 @@
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 16px;
+      padding: 12px;
       background: #ffffff;
       border-top: 1px solid #e0e0e0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       box-sizing: border-box;
+
+      /* Animation styles */
+      transform: translateY(100%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease, visibility 0.15s ease;
+    }
+
+    #footer.visible {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
     }
 
     #selection-count {
@@ -292,7 +323,8 @@
       background-color: #0d99ff;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 0 12px;
+      height: 28px;
       border-radius: 4px;
       font-weight: 500;
       cursor: pointer;
@@ -365,18 +397,25 @@
       const count = document.querySelectorAll('.layer-checkbox:checked').length;
       const countEl = document.getElementById('selection-count');
       const button = document.getElementById('select-button');
+      const footer = document.getElementById('footer');
 
-      if (!countEl || !button) return;
+      if (!countEl || !button || !footer) return;
 
       if (count === 0) {
         countEl.textContent = 'No layer selected';
         button.textContent = 'Select Layers';
-      } else if (count === 1) {
-        countEl.textContent = '1 layer selected';
-        button.textContent = 'Select Layer';
+        footer.classList.remove('visible');
+        container.style.paddingBottom = '0px';
       } else {
-        countEl.textContent = `${count} layers selected`;
-        button.textContent = 'Select Layers';
+        if (count === 1) {
+          countEl.textContent = '1 layer selected';
+          button.textContent = 'Select Layer';
+        } else {
+          countEl.textContent = `${count} layers selected`;
+          button.textContent = 'Select Layers';
+        }
+        footer.classList.add('visible');
+        container.style.paddingBottom = '60px';
       }
 
       button.disabled = (count === 0);
@@ -658,9 +697,9 @@
         }
 
         // Build the HTML for each property and its options
-        msg.data.forEach(property => {
+        msg.data.forEach((property, index) => {
           let propertyHtml = `
-            <div class="property-group collapsed">
+            <div class="property-group ${index !== 0 ? 'collapsed' : ''}">
               <div class="property-header">
                 <span class="property-title">${property.propertyName}</span>
                 <span class="icon"></span>
@@ -691,11 +730,7 @@
           container.innerHTML += propertyHtml;
         });
 
-        // Open the first accordion by default
-        const firstGroup = container.querySelector('.property-group');
-        if (firstGroup) {
-          firstGroup.classList.remove('collapsed');
-        }
+        // Generate HTML completed
 
         // Run an initial state update for all parents
         document.querySelectorAll('.layer-checkbox:not(:disabled)').forEach(cb => {
