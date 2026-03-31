@@ -733,6 +733,7 @@
      */
     window.onmessage = event => {
       const msg = event.data.pluginMessage;
+      if (!msg) return; // Ignore non-plugin messages
 
       // --- Message: load-groups ---
       // This is the main message to build the UI

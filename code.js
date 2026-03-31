@@ -109,10 +109,11 @@ async function processSelection() {
   let targetNode = selection[0];
 
   // --- 2. Sanitize Selection ---
-  // If an instance is selected, find its main component
+  // If an instance is selected, find its main component (async API required)
   if (targetNode.type === 'INSTANCE') {
-    if (targetNode.mainComponent) {
-      targetNode = targetNode.mainComponent;
+    const mainComp = await targetNode.getMainComponentAsync();
+    if (mainComp) {
+      targetNode = mainComp;
     } else {
       figma.ui.postMessage({ type: 'no-selection', message: 'Selected instance has no main component.' });
       originalSelection = null;
@@ -124,9 +125,12 @@ async function processSelection() {
   if (['FRAME', 'GROUP', 'SECTION'].includes(targetNode.type)) {
     const validDescendant = targetNode.findOne(n => n.type === 'COMPONENT' || n.type === 'INSTANCE');
     if (validDescendant) {
-      targetNode = validDescendant.type === 'INSTANCE' && validDescendant.mainComponent
-        ? validDescendant.mainComponent
-        : validDescendant;
+      if (validDescendant.type === 'INSTANCE') {
+        const mainComp = await validDescendant.getMainComponentAsync();
+        targetNode = mainComp || validDescendant;
+      } else {
+        targetNode = validDescendant;
+      }
     } else {
       figma.ui.postMessage({ type: 'no-selection', message: 'Selected container has no component inside.' });
       originalSelection = null;
