@@ -1,7 +1,7 @@
 // Store the node the user originally selected (must be a COMPONENT or COMPONENT_SET)
 let originalSelection = null;
 // Timer for debouncing the selection change event
-let selectionTimeout = null; 
+let selectionTimeout = null;
 
 // Show the UI
 figma.showUI(__html__, {
@@ -101,7 +101,7 @@ async function processSelection() {
 
   // --- 1. Handle Empty Selection ---
   if (selection.length === 0) {
-    figma.ui.postMessage({ type: 'no-selection', message: 'Please select a component, component set, or instance.' });
+    figma.ui.postMessage({ type: 'no-selection', message: 'Please select a main component or component set.' });
     originalSelection = null;
     return;
   }
@@ -187,13 +187,13 @@ async function processSelection() {
       for (const variant of matchingVariants) {
         const layers = getLayers(variant);
         for (const layer of layers) {
-          
+
           // We use 'layer.name' (the full name path) as the key.
           // This is the core logic that:
           // 1. Groups identical layers (e.g., "Icon/BG") across variants.
           // 2. Separates different layers at the same position (e.g., "Header" and "Footer").
-          const key = layer.path; 
-          
+          const key = layer.path;
+
           if (!layerMap.has(key)) {
             layerMap.set(key, { name: layer.name, path: layer.path, nodeIds: [] });
           }
@@ -235,7 +235,7 @@ figma.on('selectionchange', () => {
     } catch (e) {
       console.error('Error during selection processing:', e);
     }
-  }, 200); 
+  }, 200);
 });
 
 
@@ -258,7 +258,7 @@ figma.ui.onmessage = async (msg) => {
         if (node) {
           nodesToSelect.add(node);
         }
-      } catch (e) { 
+      } catch (e) {
         // ignore missing/invalid node ids
       }
     }

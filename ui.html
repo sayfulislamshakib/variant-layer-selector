@@ -45,6 +45,13 @@
       justify-content: center;
       align-items: center;
       text-align: center;
+      gap: 16px;
+      max-width: 256px;
+      margin: 0 auto;
+    }
+
+    .info-text svg {
+      color: #9747FF;
     }
 
     /* --- ACCORDION STYLES --- */
@@ -61,6 +68,10 @@
       cursor: pointer;
       user-select: none;
       transition: background-color 0.15s ease;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid #e0e0e0;
     }
 
     .property-header:hover {
@@ -85,7 +96,6 @@
 
     .property-content {
       background: #fff;
-      border-top: 1px solid #e0e0e0;
       position: relative;
       margin-left: 0;
       padding-left: 0;
@@ -94,6 +104,10 @@
 
     .property-group.collapsed .property-content {
       display: none;
+    }
+
+    .property-group.collapsed .property-header {
+      border-bottom: none;
     }
 
     .property-group.collapsed .icon {
@@ -235,6 +249,7 @@
       align-items: center;
       padding: 6px 12px 6px 4px;
       margin-left: -4px;
+      margin-right: 4px;
       position: relative;
       cursor: pointer;
       user-select: none;
@@ -299,6 +314,7 @@
       align-items: center;
       justify-content: space-between;
       box-sizing: border-box;
+      z-index: 100;
 
       /* Animation styles */
       transform: translateY(100%);
@@ -314,7 +330,7 @@
     }
 
     #selection-count {
-      font-size: 11px;
+      font-size: 12px;
       color: #777;
       white-space: nowrap;
     }
@@ -372,7 +388,26 @@
 <body>
 
   <div id="container">
-    <p class="info-text">Please select a component, variant, or instance on the canvas.</p>
+    <div class="info-text">
+      <svg aria-hidden="true" width="48px" height="48px" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <g>
+          <path
+            d="M13.4141 2.24985C12.633 1.4688 11.3667 1.4688 10.5856 2.24985L8.49985 4.33564C7.7188 5.11669 7.7188 6.38302 8.49985 7.16406L10.5856 9.24985C11.3667 10.0309 12.633 10.0309 13.4141 9.24985L15.4999 7.16406C16.2809 6.38301 16.2809 5.11668 15.4998 4.33564L13.4141 2.24985Z"
+            fill="currentColor"></path>
+          <path
+            d="M7.16406 8.49985C6.38301 7.7188 5.11668 7.7188 4.33564 8.49985L2.24985 10.5856C1.4688 11.3667 1.4688 12.633 2.24985 13.4141L4.33564 15.4999C5.11669 16.2809 6.38302 16.2809 7.16406 15.4998L9.24985 13.4141C10.0309 12.633 10.0309 11.3667 9.24985 10.5856L7.16406 8.49985Z"
+            fill="currentColor"></path>
+          <path
+            d="M19.6641 8.49985C18.883 7.7188 17.6167 7.7188 16.8356 8.49985L14.7498 10.5856C13.9688 11.3667 13.9688 12.633 14.7498 13.4141L16.8356 15.4999C17.6167 16.2809 18.883 16.2809 19.6641 15.4998L21.7499 13.4141C22.5309 12.633 22.5309 11.3667 21.7498 10.5856L19.6641 8.49985Z"
+            fill="currentColor"></path>
+          <path
+            d="M13.4141 14.7498C12.633 13.9688 11.3667 13.9688 10.5856 14.7498L8.49985 16.8356C7.7188 17.6167 7.7188 18.883 8.49985 19.6641L10.5856 21.7499C11.3667 22.5309 12.633 22.5309 13.4141 21.7498L15.4999 19.6641C16.2809 18.883 16.2809 17.6167 15.4998 16.8356L13.4141 14.7498Z"
+            fill="currentColor"></path>
+        </g>
+      </svg>
+      <span>Please select a main component or component set.</span>
+    </div>
   </div>
 
   <div id="footer">
@@ -419,6 +454,22 @@
       }
 
       button.disabled = (count === 0);
+    }
+
+    /**
+     * Updates the visibility of the blue dot indicator on property groups
+     * that contain at least one checked layer.
+     */
+    function updateGroupIndicators() {
+      const groups = document.querySelectorAll('.property-group');
+      groups.forEach(group => {
+        // Find if any layer checkbox is checked in this group
+        const hasChecked = group.querySelector('.layer-checkbox:checked:not(:disabled)') !== null;
+        const indicator = group.querySelector('.selection-indicator');
+        if (indicator) {
+          indicator.style.display = hasChecked ? 'block' : 'none';
+        }
+      });
     }
 
     /**
@@ -701,7 +752,10 @@
           let propertyHtml = `
             <div class="property-group ${index !== 0 ? 'collapsed' : ''}">
               <div class="property-header">
-                <span class="property-title">${property.propertyName}</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="property-title">${property.propertyName}</span>
+                  <span class="selection-indicator" style="display: none; width: 6px; height: 6px; background-color: #0d99ff; border-radius: 50%;"></span>
+                </div>
                 <span class="icon"></span>
               </div>
               <div class="property-content">
@@ -739,12 +793,18 @@
         });
 
         updateGlobalCount();
+        updateGroupIndicators();
       }
 
       // --- Message: no-selection ---
       // Show the empty state
       if (msg.type === 'no-selection') {
-        container.innerHTML = `<p class="info-text">${msg.message || 'Please select a component, variant, or instance.'}</p>`;
+        container.innerHTML = `
+          <div class="info-text">
+            <svg aria-hidden="true" width="48px" height="48px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M13.4141 2.24985C12.633 1.4688 11.3667 1.4688 10.5856 2.24985L8.49985 4.33564C7.7188 5.11669 7.7188 6.38302 8.49985 7.16406L10.5856 9.24985C11.3667 10.0309 12.633 10.0309 13.4141 9.24985L15.4999 7.16406C16.2809 6.38301 16.2809 5.11668 15.4998 4.33564L13.4141 2.24985Z" fill="currentColor"></path><path d="M7.16406 8.49985C6.38301 7.7188 5.11668 7.7188 4.33564 8.49985L2.24985 10.5856C1.4688 11.3667 1.4688 12.633 2.24985 13.4141L4.33564 15.4999C5.11669 16.2809 6.38302 16.2809 7.16406 15.4998L9.24985 13.4141C10.0309 12.633 10.0309 11.3667 9.24985 10.5856L7.16406 8.49985Z" fill="currentColor"></path><path d="M19.6641 8.49985C18.883 7.7188 17.6167 7.7188 16.8356 8.49985L14.7498 10.5856C13.9688 11.3667 13.9688 12.633 14.7498 13.4141L16.8356 15.4999C17.6167 16.2809 18.883 16.2809 19.6641 15.4998L21.7499 13.4141C22.5309 12.633 22.5309 11.3667 21.7498 10.5856L19.6641 8.49985Z" fill="currentColor"></path><path d="M13.4141 14.7498C12.633 13.9688 11.3667 13.9688 10.5856 14.7498L8.49985 16.8356C7.7188 17.6167 7.7188 18.883 8.49985 19.6641L10.5856 21.7499C11.3667 22.5309 12.633 22.5309 13.4141 21.7498L15.4999 19.6641C16.2809 18.883 16.2809 17.6167 15.4998 16.8356L13.4141 14.7498Z" fill="currentColor"></path></g></svg>
+            <span>${msg.message || 'Please select a main component or component set.'}</span>
+          </div>
+        `;
         container.style.overflowY = 'hidden'; // Disable scrolling
         updateGlobalCount();
       }
@@ -815,6 +875,7 @@
       // Update the global count after any checkbox change
       if (event.target.type === 'checkbox') {
         updateGlobalCount();
+        updateGroupIndicators();
       }
     });
 
